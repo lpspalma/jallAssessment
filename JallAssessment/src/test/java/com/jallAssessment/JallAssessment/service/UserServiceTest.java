@@ -1,6 +1,6 @@
 package com.jallAssessment.JallAssessment.service;
 
-import com.jallAssessment.JallAssessment.dto.NewUserDTO;
+import com.jallAssessment.JallAssessment.dto.SignUpRequestDTO;
 import com.jallAssessment.JallAssessment.dto.UserDTO;
 import com.jallAssessment.JallAssessment.model.User;
 import com.jallAssessment.JallAssessment.repository.UserRepository;
@@ -50,7 +50,7 @@ public class UserServiceTest {
         when(userRepository.findByEmail("email")).thenReturn(Optional.empty());
         when(userRepository.save(any(User.class))).thenReturn(user);
 
-        UserDTO userDTO = userService.addNewUser(NewUserDTO.builder().name("name").email("email").password("password").build());
+        UserDTO userDTO = userService.addNewUser(SignUpRequestDTO.builder().name("name").email("email").password("password").build());
 
         assertAll(
                 () -> verify(userRepository, times(1)).save(any()),
@@ -65,7 +65,7 @@ public class UserServiceTest {
         User user = User.builder().id(1L).name("name").email("email").password("password").build();
         when(userRepository.findByEmail("email")).thenReturn(Optional.of(user));
 
-        UserDTO userDTO = userService.addNewUser(NewUserDTO.builder().name("name").email("email").password("password").build());
+        UserDTO userDTO = userService.addNewUser(SignUpRequestDTO.builder().name("name").email("email").password("password").build());
 
         assertAll(
                 () -> verify(userRepository, times(0)).save(any()),

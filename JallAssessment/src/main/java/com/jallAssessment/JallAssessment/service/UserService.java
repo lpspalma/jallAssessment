@@ -1,6 +1,6 @@
 package com.jallAssessment.JallAssessment.service;
 
-import com.jallAssessment.JallAssessment.dto.NewUserDTO;
+import com.jallAssessment.JallAssessment.dto.SignUpRequestDTO;
 import com.jallAssessment.JallAssessment.dto.UserDTO;
 import com.jallAssessment.JallAssessment.model.User;
 import com.jallAssessment.JallAssessment.repository.UserRepository;
@@ -27,7 +27,7 @@ public class UserService {
         }
     }
 
-    public UserDTO addNewUser(NewUserDTO dto) {
+    public UserDTO addNewUser(SignUpRequestDTO dto) {
         User user = new User();
         UserDTO userDTO = new UserDTO();
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
