@@ -2,6 +2,7 @@ package com.jallAssessment.JallAssessment.repository;
 
 import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.model.Phone;
+import com.jallAssessment.JallAssessment.model.User;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -20,4 +21,6 @@ public interface ContactRepository  extends JpaRepository<Contact, Long> {
 
     @Query(value = "select * from contact_phones cp where ddd= :#{#ddd} and number = :#{#number} and id=:contactId", nativeQuery = true)
     Phone findPhone(@Param("ddd") String ddd, @Param("number") String number);
+
+    List<Contact> findByUser(User user);
 }

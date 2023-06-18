@@ -1,7 +1,6 @@
 package com.jallAssessment.JallAssessment.model;
 
 import jakarta.persistence.CascadeType;
-import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -38,7 +37,7 @@ public class Contact {
     @NotBlank
     private String birthday;
 
-    @ElementCollection
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contact")
     private List<Phone> phones;
 
     private String relative;
@@ -46,4 +45,9 @@ public class Contact {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "TB_USER_id", nullable = false)
     private User user;
+
+    public void addPhones(List<Phone> phones){
+        this.phones = phones;
+        phones.forEach(phone -> phone.setContact(this));
+    }
 }
