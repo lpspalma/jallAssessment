@@ -4,6 +4,7 @@ import com.jallAssessment.JallAssessment.dto.ContactDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -16,6 +17,7 @@ import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 public class ContactService {
     @Autowired
@@ -31,8 +33,10 @@ public class ContactService {
         Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
         if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUser())) {
             contactRepository.save(buildContactFromDTO(contactDTO));
+            log.info("Contato salvo com sucesso.");
             return new ResponseEntity<>("Novo contato cadastrado.", HttpStatus.CREATED);
         }
+        log.info("Contato já existe.");
         return new ResponseEntity<>("Contato já existe.", HttpStatus.BAD_REQUEST);
     }
 
@@ -44,10 +48,11 @@ public class ContactService {
             contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
             contact.setRelative(contactDTO.getRelative() != null ? contactDTO.getRelative() : contact.getRelative());
             contact.setPhones(contactDTO.getPhones() != null ? updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
-
+            log.info("Contato salvo com sucesso. " + contact);
             return new ResponseEntity<>("Contato utualizado com Sucesso. " + contactRepository.save(contact), HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
+            log.error("Falha em atualizar o contato. " + contactDTO);
             return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
         }
     }
@@ -55,8 +60,10 @@ public class ContactService {
     public ResponseEntity<String> deleteContact(long id) {
         try {
             contactRepository.deleteById(id);
+            log.info("Contato deletado com Sucesso.  id = " + id);
             return new ResponseEntity<>("Contato deletado com Sucesso. ", HttpStatus.OK);
         } catch (NoSuchElementException e) {
+            log.error("Contato não existe. id = " + id);
             return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
         }
     }
@@ -64,6 +71,7 @@ public class ContactService {
     public ResponseEntity<List<ContactDTO>> getAllByUser(long userId) {
         List<Contact> contacts = contactRepository.findByUser(userId);
         if (contacts.isEmpty()) {
+            log.info("Usuario " + userId + " não possui contatos cadastrados");
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
 
