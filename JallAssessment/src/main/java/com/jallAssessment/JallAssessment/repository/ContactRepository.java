@@ -19,8 +19,6 @@ public interface ContactRepository  extends JpaRepository<Contact, Long> {
     @Query(value = "select phones from TB_CONTACT c inner join contact_phones p on c.id = p.contact_id where id=:contactId", nativeQuery = true)
     List<Phone> getPhones(@Param("contactId") String contactId);
 
-    @Query(value = "select * from contact_phones cp where ddd= :#{#ddd} and number = :#{#number} and id=:contactId", nativeQuery = true)
-    Phone findPhone(@Param("ddd") String ddd, @Param("number") String number);
-
-    List<Contact> findByUser(User user);
+    @Query(value = "select * from TB_CONTACT where tb_user_id=:userId", nativeQuery = true)
+    List<Contact> findByUser(@Param("userId") long userId);
 }

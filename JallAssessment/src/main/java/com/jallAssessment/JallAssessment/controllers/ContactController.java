@@ -37,8 +37,8 @@ public class ContactController {
         return contactService.deleteContact(id);
     }
 
-    @GetMapping("/all")
-    ResponseEntity<List<ContactDTO>> getAllByUser(@RequestParam String userId){
+    @GetMapping("/all/{id}")
+    ResponseEntity<List<ContactDTO>> getAllByUser(@PathVariable("id") long userId){
         return contactService.getAllByUser(userId);
     }
 }

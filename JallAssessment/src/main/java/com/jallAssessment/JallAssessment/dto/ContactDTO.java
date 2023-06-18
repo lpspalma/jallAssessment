@@ -1,5 +1,6 @@
 package com.jallAssessment.JallAssessment.dto;
 
+import com.jallAssessment.JallAssessment.model.Phone;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,10 +13,11 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContactDTO {
-    public String userId;
+    public long id;
+    public String user;
     private String name;
     private String surname;
     private String birthday;
-    private List<PhoneDTO> phones;
+    private List<Phone> phones;
     private String relative;
 }

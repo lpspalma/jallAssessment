@@ -37,6 +37,6 @@ public class User {
     @NotBlank
     private String password;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    @OneToMany(mappedBy = "user")
     private List<Contact> contacts;
 }

@@ -42,7 +42,7 @@ public class Contact {
 
     private String relative;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "TB_USER_id", nullable = false)
     private User user;
 

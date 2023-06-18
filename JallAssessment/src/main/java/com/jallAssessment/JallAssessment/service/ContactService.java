@@ -1,10 +1,10 @@
 package com.jallAssessment.JallAssessment.service;
 
 import com.jallAssessment.JallAssessment.dto.ContactDTO;
-import com.jallAssessment.JallAssessment.dto.PhoneDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -27,13 +27,10 @@ public class ContactService {
     @Autowired
     private PhoneService phoneService;
 
-    @Autowired
-    private ModelMapperService modelMapper;
-
     public ResponseEntity<String> newContact(ContactDTO contactDTO) {
         Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
-        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUserId())) {
-            modelMapper.mapper(contactRepository.save(buildContactFromDTO(contactDTO)), ContactDTO.class);
+        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUser())) {
+            contactRepository.save(buildContactFromDTO(contactDTO));
             return new ResponseEntity<>("Novo contato cadastrado.", HttpStatus.CREATED);
         }
         return new ResponseEntity<>("Contato já existe.", HttpStatus.BAD_REQUEST);
@@ -57,19 +54,20 @@ public class ContactService {
 
     public ResponseEntity<String> deleteContact(long id) {
         try {
-            contactRepository.delete(contactRepository.findById(id).orElseThrow());
+            contactRepository.deleteById(id);
             return new ResponseEntity<>("Contato deletado com Sucesso. ", HttpStatus.OK);
         } catch (NoSuchElementException e) {
             return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
         }
     }
 
-    public ResponseEntity<List<ContactDTO>> getAllByUser(String userId) {
-        List<Contact> contacts = contactRepository.findByUser(userService.findUserById(userId));
+    public ResponseEntity<List<ContactDTO>> getAllByUser(long userId) {
+        List<Contact> contacts = contactRepository.findByUser(userId);
         if (contacts.isEmpty()) {
             return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
-        return new ResponseEntity<>(modelMapper.collectionMapper(List.of(contacts), ContactDTO.class), HttpStatus.OK);
+
+        return new ResponseEntity<>(contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList()), HttpStatus.OK);
     }
 
     private Contact buildContactFromDTO(ContactDTO contactDTO) {
@@ -78,14 +76,22 @@ public class ContactService {
                 .name(contactDTO.getName())
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
-                .user(userService.findUserById(contactDTO.userId))
+                .user(userService.findUserById(contactDTO.user))
                 .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
         return contact;
     }
 
-    private List<Phone> updatePhones(List<PhoneDTO> dtos, List<Phone> phones) {
+    private ContactDTO buildDTOFromContact(Contact contact) {
+        ContactDTO dto = new ContactDTO();
+        BeanUtils.copyProperties(contact, dto);
+        dto.setUser(String.valueOf(contact.getUser().getId()));
+
+        return dto;
+    }
+
+    private List<Phone> updatePhones(List<Phone> dtos, List<Phone> phones) {
         List<Phone> phonesToUpdate = new ArrayList<>(phones);
         dtos.forEach(dto -> {
             if (comparePhoneDTOWithPhone(dto, phones) == null) {
@@ -95,7 +101,7 @@ public class ContactService {
         return phonesToUpdate;
     }
 
-    private Phone comparePhoneDTOWithPhone(PhoneDTO dto, List<Phone> phones) {
+    private Phone comparePhoneDTOWithPhone(Phone dto, List<Phone> phones) {
         try {
             return phones.stream().filter(phone -> dto.getDdd().equals(phone.getDdd()) && dto.getNumber().equals(phone.getNumber())).findFirst().orElseThrow();
         } catch (NoSuchElementException e) {
