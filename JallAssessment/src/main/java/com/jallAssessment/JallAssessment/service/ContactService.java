@@ -5,10 +5,7 @@ import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
@@ -29,18 +26,19 @@ public class ContactService {
     @Autowired
     private PhoneService phoneService;
 
-    public ResponseEntity<String> newContact(ContactDTO contactDTO) {
+    public ContactDTO newContact(ContactDTO contactDTO) {
+        ContactDTO dto = null;
         Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
-        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUser())) {
-            contactRepository.save(buildContactFromDTO(contactDTO));
+        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUserId())) {
+            Contact contact = contactRepository.save(buildContactFromDTO(contactDTO));
             log.info("Contato salvo com sucesso.");
-            return new ResponseEntity<>("Novo contato cadastrado.", HttpStatus.CREATED);
+            dto = buildDTOFromContact(contact);
         }
-        log.info("Contato já existe.");
-        return new ResponseEntity<>("Contato já existe.", HttpStatus.BAD_REQUEST);
+
+        return dto;
     }
 
-    public ResponseEntity<String> updateContact(long id, ContactDTO contactDTO) {
+    public ContactDTO updateContact(long id, ContactDTO contactDTO) {
         try {
             Contact contact = contactRepository.findById(id).orElseThrow();
             contact.setName(contactDTO.getName() != null ? contactDTO.getName() : contact.getName());
@@ -48,34 +46,34 @@ public class ContactService {
             contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
             contact.setRelative(contactDTO.getRelative() != null ? contactDTO.getRelative() : contact.getRelative());
             contact.setPhones(contactDTO.getPhones() != null ? updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
+            contactRepository.save(contact);
             log.info("Contato salvo com sucesso. " + contact);
-            return new ResponseEntity<>("Contato utualizado com Sucesso. " + contactRepository.save(contact), HttpStatus.OK);
+            return buildDTOFromContact(contact);
 
         } catch (NoSuchElementException e) {
             log.error("Falha em atualizar o contato. " + contactDTO);
-            return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
+            return null;
         }
     }
 
-    public ResponseEntity<String> deleteContact(long id) {
-        try {
+    public boolean deleteContact(long id) {
+        if (contactRepository.existsById(id)){
             contactRepository.deleteById(id);
             log.info("Contato deletado com Sucesso.  id = " + id);
-            return new ResponseEntity<>("Contato deletado com Sucesso. ", HttpStatus.OK);
-        } catch (NoSuchElementException e) {
-            log.error("Contato não existe. id = " + id);
-            return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
+            return true;
         }
+        log.error("Contato não existe. id = " + id);
+        return false;
     }
 
-    public ResponseEntity<List<ContactDTO>> getAllByUser(long userId) {
+    public List<ContactDTO> getAllByUser(long userId) {
         List<Contact> contacts = contactRepository.findByUser(userId);
+        List<ContactDTO> contactsDTO;
         if (contacts.isEmpty()) {
             log.info("Usuario " + userId + " não possui contatos cadastrados");
-            return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
         }
-
-        return new ResponseEntity<>(contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList()), HttpStatus.OK);
+        contactsDTO = contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList());
+        return contactsDTO;
     }
 
     private Contact buildContactFromDTO(ContactDTO contactDTO) {
@@ -84,7 +82,7 @@ public class ContactService {
                 .name(contactDTO.getName())
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
-                .user(userService.findUserById(contactDTO.user))
+                .user(userService.findUserById(contactDTO.userId))
                 .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
@@ -92,11 +90,15 @@ public class ContactService {
     }
 
     private ContactDTO buildDTOFromContact(Contact contact) {
-        ContactDTO dto = new ContactDTO();
-        BeanUtils.copyProperties(contact, dto);
-        dto.setUser(String.valueOf(contact.getUser().getId()));
-
-        return dto;
+        return ContactDTO.builder()
+                .id(contact.getId())
+                .userId(String.valueOf(contact.getUser().getId()))
+                .name(contact.getName())
+                .surname(contact.getSurname())
+                .birthday(contact.getBirthday())
+                .phones(contact.getPhones())
+                .relative(contact.getRelative())
+                .build();
     }
 
     private List<Phone> updatePhones(List<Phone> dtos, List<Phone> phones) {

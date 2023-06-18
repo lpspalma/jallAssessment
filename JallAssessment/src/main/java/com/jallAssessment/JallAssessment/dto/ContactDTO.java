@@ -14,7 +14,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ContactDTO {
     public long id;
-    public String user;
+    public String userId;
     private String name;
     private String surname;
     private String birthday;

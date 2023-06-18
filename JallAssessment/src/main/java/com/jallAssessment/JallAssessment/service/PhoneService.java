@@ -16,7 +16,7 @@ public class PhoneService {
     public Phone buildPhoneFromPhoneDTO(Phone dto) {
         Phone phone = new Phone();
         BeanUtils.copyProperties(dto, phone);
-        phoneRepository.save(phone);
+        phone = phoneRepository.save(phone);
 
         log.info("Telefone salvo com sucesso. " + phone);
         return phone;
