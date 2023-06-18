@@ -8,14 +8,18 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import javax.validation.constraints.NotBlank;
 
 @Data
 @Entity
 @Builder
+@NoArgsConstructor
+@AllArgsConstructor
 @Table(name = "TB_PHONE")
 public class Phone {
     @Id
@@ -27,8 +31,4 @@ public class Phone {
 
     @NotBlank
     private String number;
-
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "TB_CONTACT_id", nullable = false)
-    private Contact contact;
 }

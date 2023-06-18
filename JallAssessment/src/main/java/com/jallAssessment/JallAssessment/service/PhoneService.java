@@ -12,10 +12,11 @@ public class PhoneService {
     private PhoneRepository phoneRepository;
 
     public Phone buildPhoneFromPhoneDTO(PhoneDTO dto) {
-        return
+        return phoneRepository.save(
                 Phone.builder()
                         .ddd(dto.getDdd())
                         .number(dto.getNumber())
-                        .build();
+                        .build()
+        );
     }
 }

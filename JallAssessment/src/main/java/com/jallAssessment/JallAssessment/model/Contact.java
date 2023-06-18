@@ -1,13 +1,13 @@
 package com.jallAssessment.JallAssessment.model;
 
 import jakarta.persistence.CascadeType;
+import jakarta.persistence.ElementCollection;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,7 +37,7 @@ public class Contact {
     @NotBlank
     private String birthday;
 
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "contact")
+    @ElementCollection
     private List<Phone> phones;
 
     private String relative;
@@ -46,8 +46,16 @@ public class Contact {
     @JoinColumn(name = "TB_USER_id", nullable = false)
     private User user;
 
-    public void addPhones(List<Phone> phones){
-        this.phones = phones;
-        phones.forEach(phone -> phone.setContact(this));
+    @Override
+    public String toString() {
+        return "Contact{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", surname='" + surname + '\'' +
+                ", birthday='" + birthday + '\'' +
+                ", phones=" + phones +
+                ", relative='" + relative + '\'' +
+                ", user='" + this.getUser().getId() + '\'' +
+                '}';
     }
 }

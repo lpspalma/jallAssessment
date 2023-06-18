@@ -5,20 +5,16 @@ import com.jallAssessment.JallAssessment.dto.PhoneDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
-import static org.springframework.http.HttpStatus.CREATED;
 
 @Service
 public class ContactService {
@@ -46,15 +42,12 @@ public class ContactService {
     public ResponseEntity<String> updateContact(long id, ContactDTO contactDTO) {
         try {
             Contact contact = contactRepository.findById(id).orElseThrow();
-            if (contactDTO.getBirthday() != null && contactDTO.getBirthday().isEmpty() && !contactDTO.getBirthday().equals(contact.getBirthday())) {
-                contact.setBirthday(contact.getBirthday());
-            }
-            if (contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() && !contactDTO.getRelative().equals(contact.getRelative())) {
-                contact.setRelative(contactDTO.getRelative());
-            }
-            if (contactDTO.getPhones() != null && !contactDTO.getPhones().isEmpty()) {
-                contact.setPhones(updatePhones(contactDTO.getPhones(), contact.getPhones()));
-            }
+            contact.setName(contactDTO.getName() != null ? contactDTO.getName() : contact.getName());
+            contact.setSurname(contactDTO.getSurname() != null ? contactDTO.getSurname() : contact.getSurname());
+            contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
+            contact.setRelative(contactDTO.getRelative() != null ? contactDTO.getRelative() : contact.getRelative());
+            contact.setPhones(contactDTO.getPhones() != null ? updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
+
             return new ResponseEntity<>("Contato utualizado com Sucesso. " + contactRepository.save(contact), HttpStatus.OK);
 
         } catch (NoSuchElementException e) {
@@ -86,9 +79,9 @@ public class ContactService {
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
                 .user(userService.findUserById(contactDTO.userId))
+                .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
-        contact.addPhones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()));
         return contact;
     }
 
