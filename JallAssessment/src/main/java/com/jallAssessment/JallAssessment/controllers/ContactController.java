@@ -11,7 +11,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
@@ -23,22 +22,22 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/new")
-    ResponseEntity<String> createNewContact(@RequestBody ContactDTO contactDTO){
+    ResponseEntity<String> createNewContact(@RequestBody ContactDTO contactDTO) {
         return contactService.newContact(contactDTO);
     }
 
     @PutMapping("/update/{id}")
-    ResponseEntity<String> updateContact(@PathVariable("id") long id, @RequestBody ContactDTO contactDTO){
+    ResponseEntity<String> updateContact(@PathVariable("id") long id, @RequestBody ContactDTO contactDTO) {
         return contactService.updateContact(id, contactDTO);
     }
 
     @DeleteMapping("/delete/{id}")
-    ResponseEntity<String> deleteContact(@PathVariable("id") long id){
+    ResponseEntity<String> deleteContact(@PathVariable("id") long id) {
         return contactService.deleteContact(id);
     }
 
     @GetMapping("/all/{id}")
-    ResponseEntity<List<ContactDTO>> getAllByUser(@PathVariable("id") long userId){
+    ResponseEntity<List<ContactDTO>> getAllByUser(@PathVariable("id") long userId) {
         return contactService.getAllByUser(userId);
     }
 }
