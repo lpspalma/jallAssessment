@@ -7,6 +7,8 @@ import com.jallAssessment.JallAssessment.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.util.NoSuchElementException;
@@ -27,7 +29,7 @@ public class UserService {
         }
     }
 
-    public UserDTO addNewUser(SignUpRequestDTO dto) {
+    /*public UserDTO addNewUser(SignUpRequestDTO dto) {
         User user = new User();
         UserDTO userDTO = new UserDTO();
         Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
@@ -39,5 +41,10 @@ public class UserService {
 
         BeanUtils.copyProperties(user, userDTO);
         return userDTO;
+    }*/
+
+    public UserDetailsService userDetailsService() {
+        return username -> userRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 }

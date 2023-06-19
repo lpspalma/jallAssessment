@@ -18,10 +18,10 @@ public class UserController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/new")
+    /*@PostMapping("/new")
     ResponseEntity<String> creatingNewUser(@RequestBody SignUpRequestDTO dto) {
         UserDTO userDTO = userService.addNewUser(dto);
 
         return new ResponseEntity<>("Novo usuário cadastrado. " + userDTO, CREATED);
-    }
+    }*/
 }
