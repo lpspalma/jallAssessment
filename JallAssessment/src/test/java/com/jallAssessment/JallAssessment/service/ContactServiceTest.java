@@ -54,9 +54,9 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findContact("name", "surname"),
                 () -> verify(contactRepository, times(1)).save(any(Contact.class)),
                 () -> verify(phoneService, times(1)).buildPhoneFromPhoneDTO(any(Phone.class)),
-                () -> verify(userService, times(1)).findUserById(anyString()),
+                () -> verify(userService, times(1)).findUserByEmail(anyString()),
                 () -> assertEquals(1L, dto.getId()),
-                () -> assertEquals("1", dto.getUserId()),
+                () -> assertEquals("1", dto.getUser()),
                 () -> assertEquals("name", dto.getName()),
                 () -> assertEquals("surname", dto.getSurname()),
                 () -> assertEquals("birthday", dto.getBirthday()),
@@ -81,9 +81,9 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findContact("name", "surname"),
                 () -> verify(contactRepository, times(1)).save(any(Contact.class)),
                 () -> verify(phoneService, times(2)).buildPhoneFromPhoneDTO(any(Phone.class)),
-                () -> verify(userService, times(1)).findUserById(anyString()),
+                () -> verify(userService, times(1)).findUserByEmail(anyString()),
                 () -> assertEquals(1L, dto.getId()),
-                () -> assertEquals("1", dto.getUserId()),
+                () -> assertEquals("1", dto.getUser()),
                 () -> assertEquals("name", dto.getName()),
                 () -> assertEquals("surname", dto.getSurname()),
                 () -> assertEquals("birthday", dto.getBirthday()),
@@ -108,9 +108,9 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findContact("name", "surname"),
                 () -> verify(contactRepository, times(1)).save(any(Contact.class)),
                 () -> verify(phoneService, times(1)).buildPhoneFromPhoneDTO(any(Phone.class)),
-                () -> verify(userService, times(1)).findUserById(anyString()),
+                () -> verify(userService, times(1)).findUserByEmail(anyString()),
                 () -> assertEquals(1L, dto.getId()),
-                () -> assertEquals("1", dto.getUserId()),
+                () -> assertEquals("1", dto.getUser()),
                 () -> assertEquals("name", dto.getName()),
                 () -> assertEquals("surname", dto.getSurname()),
                 () -> assertEquals("birthday", dto.getBirthday()),
@@ -123,7 +123,7 @@ public class ContactServiceTest {
     @Test
     void when_successfullyCreateNewContactWhenContactAlreadyExistButIsNewUser_then_SaveAndReturnDTO() {
         ContactDTO requestDTO = contactDTO();
-        requestDTO.setUserId("2");
+        requestDTO.setUser("2");
         Contact contact = contact();
         contact.setUser(User.builder().id(2L).build());
 
@@ -136,9 +136,9 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findContact("name", "surname"),
                 () -> verify(contactRepository, times(1)).save(any(Contact.class)),
                 () -> verify(phoneService, times(1)).buildPhoneFromPhoneDTO(any(Phone.class)),
-                () -> verify(userService, times(1)).findUserById(anyString()),
+                () -> verify(userService, times(1)).findUserByEmail(anyString()),
                 () -> assertEquals(1L, dto.getId()),
-                () -> assertEquals("2", dto.getUserId()),
+                () -> assertEquals("2", dto.getUser()),
                 () -> assertEquals("name", dto.getName()),
                 () -> assertEquals("surname", dto.getSurname()),
                 () -> assertEquals("birthday", dto.getBirthday()),
@@ -157,7 +157,7 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findContact("name", "surname"),
                 () -> verify(contactRepository, times(0)).save(any(Contact.class)),
                 () -> verify(phoneService, times(0)).buildPhoneFromPhoneDTO(any(Phone.class)),
-                () -> verify(userService, times(0)).findUserById(anyString()),
+                () -> verify(userService, times(0)).findUserByEmail(anyString()),
                 () -> assertNull(dto)
         );
     }
@@ -179,7 +179,7 @@ public class ContactServiceTest {
                 () -> verify(contactRepository, times(1)).findById(1L),
                 () -> verify(contactRepository, times(1)).save(any(Contact.class)),
                 () -> assertEquals(1L, dto.getId()),
-                () -> assertEquals("1", dto.getUserId()),
+                () -> assertEquals("1", dto.getUser()),
                 () -> assertEquals("nameUpdated", dto.getName()),
                 () -> assertEquals("surnameUpdated", dto.getSurname()),
                 () -> assertEquals("birthdayUpdated", dto.getBirthday()),
@@ -264,7 +264,7 @@ public class ContactServiceTest {
                 .id(1L)
                 .name("name")
                 .surname("surname")
-                .userId("1")
+                .user("1")
                 .birthday("birthday")
                 .phones(phone())
                 .relative("relative")

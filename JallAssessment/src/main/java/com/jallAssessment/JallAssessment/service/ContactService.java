@@ -2,13 +2,11 @@ package com.jallAssessment.JallAssessment.service;
 
 import com.jallAssessment.JallAssessment.dto.ContactDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
-import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
@@ -29,7 +27,7 @@ public class ContactService {
     public ContactDTO newContact(ContactDTO contactDTO) {
         ContactDTO dto = null;
         Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
-        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUserId())) {
+        if (contactOptional.isEmpty() || !contactOptional.get().getUser().getEmail().equals(contactDTO.getUser())) {
             Contact contact = contactRepository.save(buildContactFromDTO(contactDTO));
             log.info("Contato salvo com sucesso.");
             dto = buildDTOFromContact(contact);
@@ -45,7 +43,7 @@ public class ContactService {
             contact.setSurname(contactDTO.getSurname() != null ? contactDTO.getSurname() : contact.getSurname());
             contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
             contact.setRelative(contactDTO.getRelative() != null ? contactDTO.getRelative() : contact.getRelative());
-            contact.setPhones(contactDTO.getPhones() != null ? updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
+            contact.setPhones(contactDTO.getPhones() != null ? phoneService.updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
             contactRepository.save(contact);
             log.info("Contato salvo com sucesso. " + contact);
             return buildDTOFromContact(contact);
@@ -82,7 +80,7 @@ public class ContactService {
                 .name(contactDTO.getName())
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
-                .user(userService.findUserById(contactDTO.userId))
+                .user(userService.findUserByEmail(contactDTO.user))
                 .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
@@ -92,30 +90,12 @@ public class ContactService {
     private ContactDTO buildDTOFromContact(Contact contact) {
         return ContactDTO.builder()
                 .id(contact.getId())
-                .userId(String.valueOf(contact.getUser().getId()))
+                .user(contact.getUser().getEmail())
                 .name(contact.getName())
                 .surname(contact.getSurname())
                 .birthday(contact.getBirthday())
                 .phones(contact.getPhones())
                 .relative(contact.getRelative())
                 .build();
-    }
-
-    private List<Phone> updatePhones(List<Phone> dtos, List<Phone> phones) {
-        List<Phone> phonesToUpdate = new ArrayList<>(phones);
-        dtos.forEach(dto -> {
-            if (comparePhoneDTOWithPhone(dto, phones) == null) {
-                phonesToUpdate.add(Phone.builder().ddd(dto.getDdd()).number(dto.getNumber()).build());
-            }
-        });
-        return phonesToUpdate;
-    }
-
-    private Phone comparePhoneDTOWithPhone(Phone dto, List<Phone> phones) {
-        try {
-            return phones.stream().filter(phone -> dto.getDdd().equals(phone.getDdd()) && dto.getNumber().equals(phone.getNumber())).findFirst().orElseThrow();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
     }
 }

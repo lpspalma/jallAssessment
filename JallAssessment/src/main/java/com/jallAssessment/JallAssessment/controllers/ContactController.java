@@ -24,7 +24,8 @@ public class ContactController {
     private ContactService contactService;
 
     @PostMapping("/new")
-    ResponseEntity<String> createNewContact(@RequestBody ContactDTO contactDTO) {
+    ResponseEntity<String> createNewContact(Principal principal, @RequestBody ContactDTO contactDTO) {
+        contactDTO.setUser(principal.getName());
         ContactDTO dto = contactService.newContact(contactDTO);
         if (dto == null)
             return new ResponseEntity<>("Contato já existe.", HttpStatus.BAD_REQUEST);
