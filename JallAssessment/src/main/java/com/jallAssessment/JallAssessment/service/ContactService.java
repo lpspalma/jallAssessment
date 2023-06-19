@@ -23,19 +23,23 @@ public class ContactService {
 
     public ContactDTO newContact(ContactDTO contactDTO) {
         ContactDTO dto = null;
-        Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
-        if (contactOptional.isEmpty() || !contactOptional.get().getUser().getEmail().equals(contactDTO.getUser())) {
-            Contact contact = contactRepository.save(buildContactFromDTO(contactDTO));
-            log.info("Contato salvo com sucesso.");
-            dto = buildDTOFromContact(contact);
+        if (validateNotBlank(contactDTO)) {
+            Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
+            if (contactOptional.isEmpty() || !contactOptional.get().getUser().getEmail().equals(contactDTO.getUser())) {
+                Contact contact = contactRepository.save(buildContactFromDTO(contactDTO));
+                log.info("Contato salvo com sucesso.");
+                dto = buildDTOFromContact(contact);
+            }
         }
-
         return dto;
     }
 
     public ContactDTO updateContact(long id, ContactDTO contactDTO) {
         try {
             Contact contact = contactRepository.findById(id).orElseThrow();
+            if (!contactDTO.getUser().equals(contact.getUser().getEmail())) {
+                return null;
+            }
             contact.setName(contactDTO.getName() != null ? contactDTO.getName() : contact.getName());
             contact.setSurname(contactDTO.getSurname() != null ? contactDTO.getSurname() : contact.getSurname());
             contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
@@ -52,7 +56,7 @@ public class ContactService {
     }
 
     public boolean deleteContact(long id) {
-        if (contactRepository.existsById(id)){
+        if (contactRepository.existsById(id)) {
             contactRepository.deleteById(id);
             log.info("Contato deletado com Sucesso.  id = " + id);
             return true;
@@ -69,6 +73,19 @@ public class ContactService {
         }
         contactsDTO = contacts.stream().map(this::buildDTOFromContact).toList();
         return contactsDTO;
+    }
+
+    private boolean validateNotBlank(ContactDTO contactDTO) {
+        return contactDTO != null &&
+                isNotBlank(contactDTO.getName()) &&
+                isNotBlank(contactDTO.getSurname()) &&
+                isNotBlank(contactDTO.getBirthday()) &&
+                contactDTO.getPhones() != null &&
+                !contactDTO.getPhones().isEmpty();
+    }
+
+    private boolean isNotBlank(String value) {
+        return value != null && !value.trim().isEmpty();
     }
 
     private Contact buildContactFromDTO(ContactDTO contactDTO) {

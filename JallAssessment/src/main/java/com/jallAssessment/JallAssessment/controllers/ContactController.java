@@ -28,12 +28,13 @@ public class ContactController {
         contactDTO.setUser(principal.getName());
         ContactDTO dto = contactService.newContact(contactDTO);
         if (dto == null)
-            return new ResponseEntity<>("Contato já existe.", HttpStatus.BAD_REQUEST);
+            return new ResponseEntity<>("Falha ao cadastrar contato.", HttpStatus.BAD_REQUEST);
         return new ResponseEntity<>("Novo contato cadastrado. " + dto, HttpStatus.CREATED);
     }
 
     @PutMapping("/update/{id}")
-    ResponseEntity<String> updateContact(@PathVariable("id") long id, @RequestBody ContactDTO contactDTO) {
+    ResponseEntity<String> updateContact(@PathVariable("id") long id, Principal principal, @RequestBody ContactDTO contactDTO) {
+        contactDTO.setUser(principal.getName());
         ContactDTO dto = contactService.updateContact(id, contactDTO);
         if (dto == null)
             return new ResponseEntity<>("Contato não existe. ", HttpStatus.NO_CONTENT);
