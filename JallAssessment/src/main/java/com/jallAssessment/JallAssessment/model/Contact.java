@@ -42,7 +42,7 @@ public class Contact {
     private String relative;
 
     @ManyToOne
-    @JoinColumn(name = "TB_USER_id", nullable = false)
+    @JoinColumn(name = "TB_USER_email", nullable = false)
     private User user;
 
     @Override
@@ -54,7 +54,7 @@ public class Contact {
                 ", birthday='" + birthday + '\'' +
                 ", phones=" + phones +
                 ", relative='" + relative + '\'' +
-                ", user='" + this.getUser().getId() + '\'' +
+                ", user='" + this.getUser().getEmail() + '\'' +
                 '}';
     }
 }

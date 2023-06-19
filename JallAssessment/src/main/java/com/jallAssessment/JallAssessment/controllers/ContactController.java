@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import java.security.Principal;
 import java.util.List;
 
 @RestController
@@ -45,9 +46,9 @@ public class ContactController {
         return new ResponseEntity<>("Contato não existe.", HttpStatus.NO_CONTENT);
     }
 
-    @GetMapping("/all/{id}")
-    ResponseEntity<List<ContactDTO>> getAllByUser(@PathVariable("id") long userId) {
-        List<ContactDTO> dto = contactService.getAllByUser(userId);
+    @GetMapping("/all")
+    ResponseEntity<List<ContactDTO>> getAllByUser(Principal principal) {
+        List<ContactDTO> dto = contactService.getAllByUser(principal.getName());
         if (dto.isEmpty())
             return new ResponseEntity<>(dto, HttpStatus.NO_CONTENT);
         return new ResponseEntity<>(dto, HttpStatus.OK);

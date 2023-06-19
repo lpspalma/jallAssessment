@@ -231,9 +231,9 @@ public class ContactServiceTest {
 
     @Test
     void when_successfullyGetAllContactsFromUser_then_ReturnListDTOS() {
-        when(contactRepository.findByUser(anyLong())).thenReturn(Collections.singletonList(contact()));
+        when(contactRepository.findByUser(anyString())).thenReturn(Collections.singletonList(contact()));
 
-        List<ContactDTO> result = contactService.getAllByUser(1L);
+        List<ContactDTO> result = contactService.getAllByUser("email");
 
         assertAll(
                 () -> assertTrue(result.contains(contactDTO()))
@@ -242,9 +242,9 @@ public class ContactServiceTest {
 
     @Test
     void when_successfullyGetAllContactsFromUserButUserHaveNoContact_then_ReturnEmptyListDTOS() {
-        when(contactRepository.findByUser(anyLong())).thenReturn(new ArrayList<>());
+        when(contactRepository.findByUser(anyString())).thenReturn(new ArrayList<>());
 
-        List<ContactDTO> result = contactService.getAllByUser(1L);
+        List<ContactDTO> result = contactService.getAllByUser("email");
 
         assertAll(
                 () -> assertEquals(0, result.size())

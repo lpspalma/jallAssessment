@@ -66,11 +66,11 @@ public class ContactService {
         return false;
     }
 
-    public List<ContactDTO> getAllByUser(long userId) {
-        List<Contact> contacts = contactRepository.findByUser(userId);
+    public List<ContactDTO> getAllByUser(String email) {
+        List<Contact> contacts = contactRepository.findByUser(email);
         List<ContactDTO> contactsDTO;
         if (contacts.isEmpty()) {
-            log.info("Usuario " + userId + " não possui contatos cadastrados");
+            log.info("Usuario " + email + " não possui contatos cadastrados");
         }
         contactsDTO = contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList());
         return contactsDTO;
