@@ -2,34 +2,29 @@ package com.jallAssessment.JallAssessment.service;
 
 import com.jallAssessment.JallAssessment.dto.ContactDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
-import com.jallAssessment.JallAssessment.model.Phone;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ContactService {
-    @Autowired
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private PhoneService phoneService;
+    private final PhoneService phoneService;
 
     public ContactDTO newContact(ContactDTO contactDTO) {
         ContactDTO dto = null;
         Optional<Contact> contactOptional = contactRepository.findContact(contactDTO.getName(), contactDTO.getSurname());
-        if (contactOptional.isEmpty() || contactOptional.get().getUser().getId() != Long.parseLong(contactDTO.getUserId())) {
+        if (contactOptional.isEmpty() || !contactOptional.get().getUser().getEmail().equals(contactDTO.getUser())) {
             Contact contact = contactRepository.save(buildContactFromDTO(contactDTO));
             log.info("Contato salvo com sucesso.");
             dto = buildDTOFromContact(contact);
@@ -45,7 +40,7 @@ public class ContactService {
             contact.setSurname(contactDTO.getSurname() != null ? contactDTO.getSurname() : contact.getSurname());
             contact.setBirthday(contactDTO.getBirthday() != null ? contactDTO.getBirthday() : contact.getBirthday());
             contact.setRelative(contactDTO.getRelative() != null ? contactDTO.getRelative() : contact.getRelative());
-            contact.setPhones(contactDTO.getPhones() != null ? updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
+            contact.setPhones(contactDTO.getPhones() != null ? phoneService.updatePhones(contactDTO.getPhones(), contact.getPhones()) : contact.getPhones());
             contactRepository.save(contact);
             log.info("Contato salvo com sucesso. " + contact);
             return buildDTOFromContact(contact);
@@ -66,13 +61,13 @@ public class ContactService {
         return false;
     }
 
-    public List<ContactDTO> getAllByUser(long userId) {
-        List<Contact> contacts = contactRepository.findByUser(userId);
+    public List<ContactDTO> getAllByUser(String email) {
+        List<Contact> contacts = contactRepository.findByUser(email);
         List<ContactDTO> contactsDTO;
         if (contacts.isEmpty()) {
-            log.info("Usuario " + userId + " não possui contatos cadastrados");
+            log.info("Usuario " + email + " não possui contatos cadastrados");
         }
-        contactsDTO = contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList());
+        contactsDTO = contacts.stream().map(this::buildDTOFromContact).toList();
         return contactsDTO;
     }
 
@@ -82,8 +77,8 @@ public class ContactService {
                 .name(contactDTO.getName())
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
-                .user(userService.findUserById(contactDTO.userId))
-                .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
+                .user(userService.findUserByEmail(contactDTO.getUser()))
+                .phones(contactDTO.getPhones().stream().map(phoneService::buildPhoneFromPhoneDTO).toList())
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
         return contact;
@@ -92,30 +87,12 @@ public class ContactService {
     private ContactDTO buildDTOFromContact(Contact contact) {
         return ContactDTO.builder()
                 .id(contact.getId())
-                .userId(String.valueOf(contact.getUser().getId()))
+                .user(contact.getUser().getEmail())
                 .name(contact.getName())
                 .surname(contact.getSurname())
                 .birthday(contact.getBirthday())
                 .phones(contact.getPhones())
                 .relative(contact.getRelative())
                 .build();
-    }
-
-    private List<Phone> updatePhones(List<Phone> dtos, List<Phone> phones) {
-        List<Phone> phonesToUpdate = new ArrayList<>(phones);
-        dtos.forEach(dto -> {
-            if (comparePhoneDTOWithPhone(dto, phones) == null) {
-                phonesToUpdate.add(Phone.builder().ddd(dto.getDdd()).number(dto.getNumber()).build());
-            }
-        });
-        return phonesToUpdate;
-    }
-
-    private Phone comparePhoneDTOWithPhone(Phone dto, List<Phone> phones) {
-        try {
-            return phones.stream().filter(phone -> dto.getDdd().equals(phone.getDdd()) && dto.getNumber().equals(phone.getNumber())).findFirst().orElseThrow();
-        } catch (NoSuchElementException e) {
-            return null;
-        }
     }
 }

@@ -13,8 +13,8 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 public class ContactDTO {
-    public long id;
-    public String userId;
+    private long id;
+    private String user;
     private String name;
     private String surname;
     private String birthday;

@@ -14,6 +14,6 @@ public interface ContactRepository  extends JpaRepository<Contact, Long> {
     @Query("select c from Contact c where c.name= :#{#name} and c.surname = :#{#surname}")
     Optional<Contact> findContact(String name, String surname);
 
-    @Query(value = "select * from TB_CONTACT where tb_user_id=:userId", nativeQuery = true)
-    List<Contact> findByUser(@Param("userId") long userId);
+    @Query("select c from Contact c where c.user.email= :#{#email}")
+    List<Contact> findByUser(@Param("email") String email);
 }
