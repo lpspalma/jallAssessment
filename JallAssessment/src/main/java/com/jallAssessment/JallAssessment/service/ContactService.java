@@ -3,26 +3,23 @@ package com.jallAssessment.JallAssessment.service;
 import com.jallAssessment.JallAssessment.dto.ContactDTO;
 import com.jallAssessment.JallAssessment.model.Contact;
 import com.jallAssessment.JallAssessment.repository.ContactRepository;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@RequiredArgsConstructor
 public class ContactService {
-    @Autowired
-    private ContactRepository contactRepository;
+    private final ContactRepository contactRepository;
 
-    @Autowired
-    private UserService userService;
+    private final UserService userService;
 
-    @Autowired
-    private PhoneService phoneService;
+    private final PhoneService phoneService;
 
     public ContactDTO newContact(ContactDTO contactDTO) {
         ContactDTO dto = null;
@@ -70,7 +67,7 @@ public class ContactService {
         if (contacts.isEmpty()) {
             log.info("Usuario " + email + " não possui contatos cadastrados");
         }
-        contactsDTO = contacts.stream().map(this::buildDTOFromContact).collect(Collectors.toList());
+        contactsDTO = contacts.stream().map(this::buildDTOFromContact).toList();
         return contactsDTO;
     }
 
@@ -80,8 +77,8 @@ public class ContactService {
                 .name(contactDTO.getName())
                 .surname(contactDTO.getSurname())
                 .birthday(contactDTO.getBirthday())
-                .user(userService.findUserByEmail(contactDTO.user))
-                .phones(contactDTO.getPhones().stream().map(phoneDTO -> phoneService.buildPhoneFromPhoneDTO(phoneDTO)).collect(Collectors.toList()))
+                .user(userService.findUserByEmail(contactDTO.getUser()))
+                .phones(contactDTO.getPhones().stream().map(phoneService::buildPhoneFromPhoneDTO).toList())
                 .relative(contactDTO.getRelative() != null && !contactDTO.getRelative().isEmpty() ? contactDTO.getRelative() : "")
                 .build();
         return contact;

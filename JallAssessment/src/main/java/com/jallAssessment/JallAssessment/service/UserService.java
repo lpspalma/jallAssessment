@@ -25,20 +25,6 @@ public class UserService {
         }
     }
 
-    /*public UserDTO addNewUser(SignUpRequestDTO dto) {
-        User user = new User();
-        UserDTO userDTO = new UserDTO();
-        Optional<User> optionalUser = userRepository.findByEmail(dto.getEmail());
-        if (optionalUser.isEmpty()) {
-            BeanUtils.copyProperties(dto, user);
-            user = userRepository.save(user);
-            log.info("Novo usuário cadastrado com sucesso. " + user);
-        } else user = optionalUser.get();
-
-        BeanUtils.copyProperties(user, userDTO);
-        return userDTO;
-    }*/
-
     public UserDetailsService userDetailsService() {
         return username -> userRepository.findByEmail(username)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found"));

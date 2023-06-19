@@ -18,12 +18,12 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping("/signup")
-    public ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequestDTO request) {
+    ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequestDTO request) {
         return ResponseEntity.ok(loginService.signup(request));
     }
 
     @PostMapping("/signin")
-    public ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SignInRequest request) {
+    ResponseEntity<JwtAuthenticationResponse> signin(@RequestBody SignInRequest request) {
         return ResponseEntity.ok(loginService.signin(request));
     }
 }
