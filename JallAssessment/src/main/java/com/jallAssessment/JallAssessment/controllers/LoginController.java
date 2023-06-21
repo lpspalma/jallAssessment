@@ -2,7 +2,7 @@ package com.jallAssessment.JallAssessment.controllers;
 
 import com.jallAssessment.JallAssessment.dto.JwtAuthenticationResponse;
 import com.jallAssessment.JallAssessment.dto.SignInRequest;
-import com.jallAssessment.JallAssessment.dto.SignUpRequestDTO;
+import com.jallAssessment.JallAssessment.dto.SignUpRequest;
 import com.jallAssessment.JallAssessment.service.LoginService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -18,7 +18,7 @@ public class LoginController {
     private LoginService loginService;
 
     @PostMapping("/signup")
-    ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequestDTO request) {
+    ResponseEntity<JwtAuthenticationResponse> signup(@RequestBody SignUpRequest request) {
         return ResponseEntity.ok(loginService.signup(request));
     }
 

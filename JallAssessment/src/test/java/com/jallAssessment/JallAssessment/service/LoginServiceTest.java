@@ -2,7 +2,7 @@ package com.jallAssessment.JallAssessment.service;
 
 import com.jallAssessment.JallAssessment.dto.JwtAuthenticationResponse;
 import com.jallAssessment.JallAssessment.dto.SignInRequest;
-import com.jallAssessment.JallAssessment.dto.SignUpRequestDTO;
+import com.jallAssessment.JallAssessment.dto.SignUpRequest;
 import com.jallAssessment.JallAssessment.model.User;
 import com.jallAssessment.JallAssessment.repository.UserRepository;
 import org.junit.jupiter.api.Test;
@@ -43,7 +43,7 @@ class LoginServiceTest {
         when(userRepository.save(any(User.class))).thenReturn(User.builder().build());
         when(jwtService.generateToken(any(User.class))).thenReturn("token");
 
-        JwtAuthenticationResponse response = loginService.signup(SignUpRequestDTO.builder().name("name").email("email").password("password").build());
+        JwtAuthenticationResponse response = loginService.signup(SignUpRequest.builder().name("name").email("email").password("password").build());
 
         assertAll(
                 () -> verify(passwordEncoder, times(1)).encode(anyString()),
