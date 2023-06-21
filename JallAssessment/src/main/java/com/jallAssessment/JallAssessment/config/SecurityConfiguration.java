@@ -2,7 +2,6 @@ package com.jallAssessment.JallAssessment.config;
 
 import com.jallAssessment.JallAssessment.service.UserService;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -23,10 +22,8 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 @EnableWebSecurity
 @RequiredArgsConstructor
 public class SecurityConfiguration {
-    @Autowired
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
 
-    @Autowired
     private final UserService userService;
 
     @Bean
